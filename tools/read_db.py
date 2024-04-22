@@ -1,6 +1,8 @@
 import pandas as pd
+import numpy as np
 import os
-file_name = 'test.csv'
+file_name = 'test' 
+file_name += '.csv'
 # 获取当前工作目录
 current_directory = os.getcwd()
 
@@ -17,5 +19,7 @@ def write(df):
     df.to_csv(csv_file_path, index=False, encoding='utf-8')
 
 if (__name__ == '__main__'):
+    # print current directory
+    print(current_directory)
     df = read()
-    print(df['summary'])
+    print(np.isnan(df['content'][4]))

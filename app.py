@@ -3,23 +3,30 @@ from flask import url_for
 from flask_sqlalchemy import SQLAlchemy
 import os
 import click
-from openai import OpenAI
+# from openai import OpenAI
+# from tools.read_db import read
+from tools.db2mermaid import db2mermaid_code
+from tools.read_db import read
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////' + os.path.join(app.root_path, 'data.db') # 数据库文件保存在根目录
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 关闭对模型修改的监控
-db = SQLAlchemy(app)
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////' + os.path.join(app.root_path, 'data.db') # 数据库文件保存在根目录
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 关闭对模型修改的监控
+# db = SQLAlchemy(app)
 
-class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text)
+# class Task(db.Model):
+# id = db.Column(db.Integer, primary_key=True)
+# name = db.Column(db.String(100), nullable=False)
+# description = db.Column(db.Text)
 
-    def __repr__(self):
-        return f"Task('{self.name}')" 
+# def __repr__(self):
+#     return f"Task('{self.name}')" 
 
 @app.route('/')
-def flowchart():
+def index():
+    return render_template('index.html',flow_definition=db2mermaid_code())
+
+@app.route('/test')
+def given_tasks():
     # 假设这是从数据库获取的任务数据
     tasks = [
         {"id": "1", "name": "开始", "next": ["2"]},

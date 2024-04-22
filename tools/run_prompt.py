@@ -1,5 +1,4 @@
 from read_db import read, write
-import pandas as pd
 from openai import OpenAI
 import myapi
 
