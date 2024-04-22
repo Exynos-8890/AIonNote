@@ -15,3 +15,7 @@ def read():
 
 def write(df):
     df.to_csv(csv_file_path, index=False, encoding='utf-8')
+
+if (__name__ == '__main__'):
+    df = read()
+    print(df['summary'])
