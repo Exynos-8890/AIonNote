@@ -1,9 +1,10 @@
 from openai import OpenAI
+import myapi
 
 # print openai version
 # print(OpenAI.__version__)
 client = OpenAI(
-    api_key="sk-Gd0K8mOqI9PCW9rHjR99nDxsBMPFp5gzk0QHM5EK5ial6Yy1",
+    api_key= myapi.myapikey,
     base_url="https://api.moonshot.cn/v1",
 )
 
@@ -16,4 +17,4 @@ completion = client.chat.completions.create(
   temperature=0.3,
 )
  
-print(completion.choices[0].message)
+print(completion.choices[0].message.content)
