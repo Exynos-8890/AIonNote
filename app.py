@@ -23,7 +23,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('index.html',flow_definition=db2mermaid_code())
+    return render_template('index.html',mermaid_code=db2mermaid_code())
 
 @app.route('/test')
 def given_tasks():
@@ -41,7 +41,7 @@ def given_tasks():
         for next_task in task["next"]:
             flow_definition += f"{task['id']}({task['name']}) --> {next_task};\n"
 
-    return render_template('index.html', flow_definition=flow_definition)
+    return render_template('index.html', mermaid_code=flow_definition)
 
 if __name__ == '__main__':
     app.run(debug=True)
