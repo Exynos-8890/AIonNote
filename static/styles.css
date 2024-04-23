@@ -1,4 +1,4 @@
-body {
+/* body {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -8,6 +8,6 @@ body {
 
 .mermaid {
     width: 100%;
-    max-width: 600px; /* 可以根据需要调整最大宽度 */
+    max-width: 600px; 
     margin: auto;
-}
+} */
