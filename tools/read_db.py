@@ -11,15 +11,19 @@ csv_file_path = os.path.join(current_directory, 'db', file_name)
 
 
 def read():
-    df = pd.read_csv(csv_file_path)
+    df = pd.read_csv(csv_file_path,index_col=0)
     df['reference'] = df['reference'].apply(eval)
+    # turn df to dataframe
+    df = pd.DataFrame(df)
     return df
 
 def write(df):
-    df.to_csv(csv_file_path, index=False, encoding='utf-8')
+    df.to_csv(csv_file_path, index=True, encoding='utf-8')
 
 if (__name__ == '__main__'):
     # print current directory
     print(current_directory)
     df = read()
-    print(np.isnan(df['content'][4]))
+    # print(np.isnan(df['content'][4]))
+    print(df)
+    write(df)

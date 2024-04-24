@@ -7,22 +7,27 @@
 </head>
 <body>
     <h1>编辑节点</h1>
-    <form>
+    <form method="post">
         <div>
             <label for="single-line-input">节点缩写：</label>
             <input type="text" id="summary-input" name="summary-input" value="{{ summary_input_value }}">
         </div>
         <div>
             <label for="prompt-input">Prompt：</label>
-            <textarea id="prompt-input" name="prompt-input" rows="2"> {{prompt_input_value}} </textarea>
+            <textarea id="prompt-input" name="prompt-input" rows="2">{{prompt_input_value}}</textarea>
         </div>
         <div>
             <label>此节点引用的节点：</label>
-            {% for option in checkbox_options %}
-            <input type="checkbox" id="{{ option }}" name="{{ option }}" {% if option in selected_options %}checked{% endif %}>
+            <!-- {% for option in checkbox_options %}
+            <input type="checkbox" name="selected-options" value="{{option}}" {% if option in selected_options %} checked {% endif %}>
             <label for="{{ option }}">{{ option }}</label>
+            {% endfor %} -->
+            {% for key, value in options_dict.items() %}
+            <input type="checkbox" id="{{ key }}" name="selected-options" value="{{ key }}"
+            {% if key in selected_options %} checked {% endif %}>
+            <label for="{{ key }}">{{ value }}</label>
             {% endfor %}
-        </div>
+        </div>  
         <div>
             <label for="content-textarea">节点内容：</label>
             <textarea id="content-textarea" name="content-textarea" rows="6" >{{content_input_value}}</textarea>
@@ -30,9 +35,9 @@
         <div>
             <button type="submit">提交</button>
         </div>
-        <div>
+        <!-- <div>
             <button type="submit">提交并运行Prompt</button>
-        </div>
+        </div> -->
     </form>
 </body>
 </html>

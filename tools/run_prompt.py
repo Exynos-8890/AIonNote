@@ -2,18 +2,18 @@ from read_db import read, write
 from openai import OpenAI
 import myapi
 
-def run_id(ID):
+def run_index(running_ID):
     df = read()
 
-    prompt_with_content = df['prompt'][ID]
-    for id in df['reference'][ID]:
-        if id == -1:
+    prompt_with_content = df['prompt'][running_ID]
+    for index in df['reference'][running_ID]:
+        if index == -1:
             continue
-        if df['content'][id] == '':
+        if df['content'][index] == '':
             # stop the program and report error 
             print('Error: content is empty')
             exit(0)
-        prompt_with_content = prompt_with_content + '\n' * 2  + df['summary'][id] + ': ' + df['content'][id]
+        prompt_with_content = prompt_with_content + '\n' * 2  + df['summary'][index] + ': ' + df['content'][index]
     print(prompt_with_content)
     client = OpenAI(
         api_key= myapi.myapikey,
@@ -27,9 +27,9 @@ def run_id(ID):
     temperature=0.3,
     )
 
-    df.loc[ID, "content"] = completion.choices[0].message.content
-    print(df["content"][ID])
-    write(df)
+    df.loc[running_ID, "content"] = completion.choices[0].message.content
+    print(df["content"][running_ID])
+    # write(df)
 
 if __name__ == '__main__':  
-    run_id(5)
+    run_index(5)
