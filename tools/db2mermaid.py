@@ -1,7 +1,11 @@
 import numpy as np
-if __name__ == '__main__':
+# if __name__ == '__main__':
+#     from read_db import read
+# else:
+#     from tools.read_db import read
+try:
     from read_db import read
-else:
+except:
     from tools.read_db import read
 
 width = 8
