@@ -1,6 +1,8 @@
 from flask import Flask, render_template, url_for, request, redirect, flash
 import pandas as pd
 import time
+import requests
+from tools.myapi import myapikey
 # from openai import OpenAI
 # from tools.read_db import read
 from tools.db2mermaid import db2mermaid_code
@@ -27,7 +29,24 @@ def func():
 def index():
     if request.method == 'POST':
         return redirect(url_for('add'))
-    return render_template('index.html',mermaid_code=db2mermaid_code())
+    df = read()
+    options_dict = df['summary'].to_dict()
+    url = "https://api.moonshot.cn/v1/users/me/balance"
+    headers = {"Authorization": myapikey}
+    response = requests.get(url, headers=headers)
+    print(response.json())
+    balance = response.json()['data']['available_balance']
+    return render_template('index.html',
+                           mermaid_code=db2mermaid_code(),
+                           options = options_dict
+                           ,balance = balance
+                           )
+
+@app.route('/edit', methods=['POST'])
+def submit():
+    selected_option = request.form['option']
+    return redirect(url_for('edit', index=selected_option))
+    return selected_option
 
 @app.route('/add',methods=['GET', 'POST'])
 def add():
@@ -39,6 +58,8 @@ def add():
         reference = request.form.getlist('selected-options')
         # turn reference to list of int
         reference = [int(x) for x in reference]
+        if len(reference) == 0:
+            reference = -1
         prompt = request.form['prompt-input']
         content = request.form['content-textarea']
         new_row = pd.DataFrame({'summary': summary, 'reference': [reference], 'prompt': prompt, 'content': content})
@@ -65,7 +86,39 @@ def add():
                            selected_options=selected_options, prompt_input_value=prompt_input_value
                            )
 
+@app.route('/edit/<index>',methods=['GET', 'POST'])
+def edit(index):
+    if request.method == 'POST':
+        df = read()
+        summary = request.form['summary-input']
+        reference = request.form.getlist('selected-options')
+        # turn reference to list of int
+        reference = [int(x) for x in reference]
+        if len(reference) == 0:
+            reference = -1
+        prompt = request.form['prompt-input']
+        content = request.form['content-textarea']
+        df.loc[int(index)] = {'summary': summary, 'reference': reference, 'prompt': prompt, 'content': content}
+        write(df)
+        if request.form.get('submit_and_run') == 'submit_and_run':
+            run_index(int(index))
+        return redirect(url_for('index'))
 
+    df = read()
+    row = df.loc[int(index)]
+    summary_input_value = row['summary']
+    options_dict = df['summary'].to_dict()
+    selected_options = row['reference']
+    prompt_input_value = row['prompt']
+    content_input_value = row['content']
+    return render_template('adjust.html', 
+                           summary_input_value=summary_input_value,
+                           options_dict=options_dict, 
+                           selected_options=selected_options, 
+                           prompt_input_value=prompt_input_value,
+                           content_input_value=content_input_value
+                           )
+    
 @app.route('/test',methods=['GET', 'POST'])
 def given_tasks():
     if request.method == 'POST':
