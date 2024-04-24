@@ -16,7 +16,7 @@
     <form method="post">
         <button type="submit">添加新的节点</button>
     </form>
-    <h2>修改节点：</h2>
+    <h2>查看/编辑节点：</h2>
     <form action="/edit" method="post">
         <label for="options">选择一个选项：</label>
         <select id="options" name="option">
@@ -24,7 +24,7 @@
                 <option value="{{ key }}">{{ value }}</option>
             {% endfor %}
         </select><br><br>
-        <input type="submit" value="提交">
+        <input type="submit" value="进入节点编辑界面">
     </form>
     <p>剩余balance: {{ balance }}</p>
 </body>
