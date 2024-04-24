@@ -16,4 +16,4 @@
 #     ]
 # }'
 
-curl https://api.moonshot.cn/v1/users/me/balance -H "Authorization: Bearer sk-Gd0K8mOqI9PCW9rHjR99nDxsBMPFp5gzk0QHM5EK5ial6Yy1"
+curl https://api.moonshot.cn/v1/users/me/balance -H "Authorization: Bearer sk-Onio9mkTwP9YWBwk0yfoDeed1gRSlwzV0PnzBTJAPivWqSVq"
