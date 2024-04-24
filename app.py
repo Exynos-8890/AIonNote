@@ -1,11 +1,11 @@
 from flask import Flask, render_template, url_for, request, redirect, flash
 import pandas as pd
-import os
-import click
+import time
 # from openai import OpenAI
 # from tools.read_db import read
 from tools.db2mermaid import db2mermaid_code
 from tools.read_db import read, write
+from tools.run_prompt import run_index
 
 app = Flask(__name__)
 app.debug = True
@@ -20,6 +20,8 @@ app.debug = True
 
 # def __repr__(self):
 #     return f"Task('{self.name}')" 
+def func():
+    time.sleep(5)
 
 @app.route('/',methods=['GET', 'POST'])
 def index():
@@ -42,6 +44,9 @@ def add():
         new_row = pd.DataFrame({'summary': summary, 'reference': [reference], 'prompt': prompt, 'content': content})
         df = pd.concat([df, new_row], ignore_index=True)
         write(df)
+        if request.form.get('submit_and_run') == 'submit_and_run':
+            ID_to_run = df.index[-1]
+            run_index(ID_to_run)
         # print(df)
         # flash('添加成功')
         return redirect(url_for('index'))
@@ -78,6 +83,17 @@ def given_tasks():
     <input type="checkbox" name="option2" value="value2"> Option 2<br>
     <input type="submit" value="Submit">
     </form>'''
+
+@app.route('/running')
+def running():
+    # 在/running页面显示"running"
+    message = "Running"
+    
+    # 模拟等待5秒后执行函数
+    func()
+    
+    # 函数执行完毕后重定向回根目录
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)

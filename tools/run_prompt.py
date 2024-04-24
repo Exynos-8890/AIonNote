@@ -1,6 +1,14 @@
-from read_db import read, write
+# from read_db import read, write
+try:
+    from read_db import read, write
+except:
+    from tools.read_db import read, write
 from openai import OpenAI
-import myapi
+# import myapi
+try:
+    import myapi
+except:
+    import tools.myapi as myapi
 
 def run_index(running_ID):
     df = read()
@@ -14,7 +22,7 @@ def run_index(running_ID):
             print('Error: content is empty')
             exit(0)
         prompt_with_content = prompt_with_content + '\n' * 2  + df['summary'][index] + ': ' + df['content'][index]
-    print(prompt_with_content)
+    # print(prompt_with_content)
     client = OpenAI(
         api_key= myapi.myapikey,
         base_url="https://api.moonshot.cn/v1",
@@ -29,7 +37,7 @@ def run_index(running_ID):
 
     df.loc[running_ID, "content"] = completion.choices[0].message.content
     print(df["content"][running_ID])
-    # write(df)
+    write(df)
 
 if __name__ == '__main__':  
     run_index(5)
