@@ -24,6 +24,6 @@ if (__name__ == '__main__'):
     # print current directory
     print(current_directory)
     df = read()
+    df.to_json(file_name)
     # print(np.isnan(df['content'][4]))
-    print(df)
-    write(df)
+    # print(df.iloc[int("5")])

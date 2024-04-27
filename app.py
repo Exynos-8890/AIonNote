@@ -1,10 +1,7 @@
-from flask import Flask, render_template, url_for, request, redirect, flash
+from flask import Flask, render_template, url_for, request, redirect
 import pandas as pd
 import time
-import requests
-from tools.myapi import myapikey
-# from openai import OpenAI
-# from tools.read_db import read
+from tools.myapi import get_kimi_balance
 from tools.db2mermaid import db2mermaid_code
 from tools.read_db import read, write
 from tools.run_prompt import run_index
@@ -31,11 +28,7 @@ def index():
         return redirect(url_for('add'))
     df = read()
     options_dict = df['summary'].to_dict()
-    url = "https://api.moonshot.cn/v1/users/me/balance"
-    headers = {"Authorization": myapikey}
-    response = requests.get(url, headers=headers)
-    print(response.json())
-    balance = response.json()['data']['available_balance']
+    balance = get_kimi_balance()
     return render_template('index.html',
                            mermaid_code=db2mermaid_code(),
                            options = options_dict
@@ -54,12 +47,14 @@ def add():
 
     df = read()
     if request.method == 'POST':
+        if request.form.get('home') == 'home':
+            return redirect(url_for('index'))
         summary = request.form['summary-input']
         reference = request.form.getlist('selected-options')
         # turn reference to list of int
         reference = [int(x) for x in reference]
         if len(reference) == 0:
-            reference = -1
+            reference = [-1]
         prompt = request.form['prompt-input']
         content = request.form['content-textarea']
         new_row = pd.DataFrame({'summary': summary, 'reference': [reference], 'prompt': prompt, 'content': content})
@@ -68,6 +63,7 @@ def add():
         if request.form.get('submit_and_run') == 'submit_and_run':
             ID_to_run = df.index[-1]
             run_index(ID_to_run)
+            return redirect(url_for('edit', index=ID_to_run))
         # print(df)
         # flash('添加成功')
         return redirect(url_for('index'))
@@ -89,6 +85,8 @@ def add():
 @app.route('/edit/<index>',methods=['GET', 'POST'])
 def edit(index):
     if request.method == 'POST':
+        if request.form.get('home') == 'home':
+            return redirect(url_for('index'))
         df = read()
         summary = request.form['summary-input']
         reference = request.form.getlist('selected-options')
@@ -102,10 +100,14 @@ def edit(index):
         write(df)
         if request.form.get('submit_and_run') == 'submit_and_run':
             run_index(int(index))
+            return redirect(url_for('edit', index=index))
         return redirect(url_for('index'))
 
     df = read()
-    row = df.loc[int(index)]
+    print('typeof index:', type(index),'\nvalue of index:', index)
+    index = int(index)
+    print('typeof index:', type(index),'\nvalue of index:', index)
+    row = df.iloc[index]
     summary_input_value = row['summary']
     options_dict = df['summary'].to_dict()
     selected_options = row['reference']

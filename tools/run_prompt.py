@@ -3,39 +3,30 @@ try:
     from read_db import read, write
 except:
     from tools.read_db import read, write
-from openai import OpenAI
-# import myapi
+
 try:
-    import myapi
+    from myapi import get_zhipu_response, get_kimi_response
 except:
-    import tools.myapi as myapi
+    from tools.myapi import get_zhipu_response, get_kimi_response
 
 def run_index(running_ID):
     df = read()
 
     prompt_with_content = df['prompt'][running_ID]
-    for index in df['reference'][running_ID]:
-        if index == -1:
-            continue
-        if df['content'][index] == '':
-            # stop the program and report error 
-            print('Error: content is empty')
-            exit(0)
-        prompt_with_content = prompt_with_content + '\n' * 2  + df['summary'][index] + ': ' + df['content'][index]
+    if df['reference'][running_ID] == [-1]:
+        pass
+    else:
+        for index in df['reference'][running_ID]:
+            if df['content'][index] == '':
+                # stop the program and report error 
+                print('Error: content is empty')
+                exit(0)
+            prompt_with_content = prompt_with_content + '\n' * 2  + df['summary'][index] + ': ' + df['content'][index]
     # print(prompt_with_content)
-    client = OpenAI(
-        api_key= myapi.myapikey,
-        base_url="https://api.moonshot.cn/v1",
-    )
-    completion = client.chat.completions.create(
-    model="moonshot-v1-8k",
-    messages=[
-        {"role": "user", "content": prompt_with_content}
-    ],
-    temperature=0.3,
-    )
+    
 
-    df.loc[running_ID, "content"] = completion.choices[0].message.content
+    df.loc[running_ID, "content"] = get_zhipu_response(prompt_with_content)
+    # get_kimi_response(prompt_with_content)
     print(df["content"][running_ID])
     write(df)
 
