@@ -28,7 +28,10 @@ def index():
         return redirect(url_for('add'))
     df = read()
     options_dict = df['summary'].to_dict()
-    balance = get_kimi_balance()
+    try:
+        balance = get_kimi_balance()
+    except:
+        balance = 'Network Error'
     return render_template('index.html',
                            mermaid_code=db2mermaid_code(),
                            options = options_dict
