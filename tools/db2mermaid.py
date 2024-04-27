@@ -22,6 +22,8 @@ classDef blue stroke:#00f,stroke-width:{width}px
         else:
             flow_definition += f"{index}:::green\n"
     for index, row in df.iterrows():
+        if row['reference'] == -1:
+            continue
         for i in row['reference']:
             if i == -1:
                 break

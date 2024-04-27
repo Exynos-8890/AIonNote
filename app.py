@@ -113,7 +113,10 @@ def edit(index):
     row = df.iloc[index]
     summary_input_value = row['summary']
     options_dict = df['summary'].to_dict()
-    selected_options = row['reference']
+    if row['reference'] == -1:
+        selected_options = []
+    else:
+        selected_options = row['reference']
     prompt_input_value = row['prompt']
     content_input_value = row['content']
     return render_template('adjust.html', 
