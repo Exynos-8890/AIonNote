@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>配置</title>
+</head>
+<body>
+    <h1>配置</h1>
+
+    <form action="/submit_config" method="post" enctype="multipart/form-data">
+        <label for="format">选择格式:</label>
+        <select name="format" id="format">
+            <option value="json">JSON</option>
+            <option value="csv">CSV</option>
+        </select>
+
+        <label for="file">选择文件:</label>
+        <select name="file" id="file">
+            {% for file in files %}
+                <option value="{{ file }}">{{ file }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">提交</button>
+    </form>
+
+    <form action="/new_db" method="post" enctype="multipart/form-data">
+        <label for="new_file">或者：输入新的文件名</label>
+        <input type="text" id="new_file" name="new_file" />
+
+        <button type="submit">新建数据库</button>
+    </form>
+</body>
+</html>

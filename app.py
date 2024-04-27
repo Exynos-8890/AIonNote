@@ -1,10 +1,15 @@
 from flask import Flask, render_template, url_for, request, redirect
 import pandas as pd
-import time
+import os, shutil
 from tools.myapi import get_kimi_balance
 from tools.db2mermaid import db2mermaid_code
 from tools.read_db import read, write
 from tools.run_prompt import run_index
+from tools.edit_config import config_read,config_update_db_name
+
+
+def copy_file(src_file: str, dest_file: str):
+    shutil.copy(src_file, dest_file)
 
 app = Flask(__name__)
 app.debug = True
@@ -19,8 +24,6 @@ app.debug = True
 
 # def __repr__(self):
 #     return f"Task('{self.name}')" 
-def func():
-    time.sleep(5)
 
 @app.route('/',methods=['GET', 'POST'])
 def index():
@@ -32,11 +35,39 @@ def index():
         balance = get_kimi_balance()
     except:
         balance = 'Network Error'
+    mermaid_code = db2mermaid_code()
+    print(config_read())
     return render_template('index.html',
-                           mermaid_code=db2mermaid_code(),
+                           mermaid_code=mermaid_code,
                            options = options_dict
                            ,balance = balance
                            )
+
+@app.route('/config', methods=['GET'])
+def config():
+    files = os.listdir('./db')
+    initial_file = config_read()['db_name']
+    return render_template('config.html', files=files, initial_file=initial_file)
+
+@app.route('/submit_config', methods=['POST'])
+def submit_config():
+    # format = request.form['format']
+    file = request.form['file']
+    config_update_db_name(file)
+    return redirect(url_for('index'))
+
+@app.route('/new_db', methods=['POST'])
+def new_db():
+    new_file = request.form['new_file']
+    if not (new_file.endswith(".json") or new_file.endswith(".csv")):
+        new_file += ".json"
+
+    # 使用函数
+    copy_file('./static/db_example.json', './db/' + new_file)
+    
+    config_update_db_name(new_file)
+    # 重定向到首页
+    return redirect(url_for('index'))
 
 @app.route('/edit', methods=['POST'])
 def submit():
@@ -151,10 +182,11 @@ def running():
     message = "Running"
     
     # 模拟等待5秒后执行函数
-    func()
+    # func()
     
     # 函数执行完毕后重定向回根目录
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)
+    # app.run(host="0.0.0.0", port=8000, debug=True)
