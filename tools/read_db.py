@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
+import json
 try:
     from edit_config import config_read
 except:
@@ -59,6 +60,7 @@ def write_csv(df: pd.DataFrame):
 def write_json(df: pd.DataFrame):
     db_name = config_read()['db_name']
     file_path = os.path.join(current_directory, 'db', db_name)
+    # print(file_path)
     data = df.to_dict(orient='records')
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
@@ -70,8 +72,8 @@ if (__name__ == '__main__'):
     df = read()
     
     # print(df.iloc[0]['reference'][0])
-    new_row = pd.DataFrame({'summary': 'test', 'reference': [-1], 'prompt': 'test', 'content': 'test'})
-    df = pd.concat([df, new_row], ignore_index=True)
-    print(db_name)
+    # new_row = pd.DataFrame({'summary': 'test', 'reference': [-1], 'prompt': 'test', 'content': 'test'})
+    # df = pd.concat([df, new_row], ignore_index=True)
+    # print(db_name)
     print(df)
-    # write(df)
+    write(df)
