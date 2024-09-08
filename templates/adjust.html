@@ -4,42 +4,121 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>编辑节点</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+    <script>
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+    </script>
 </head>
 <body>
-    <h1>编辑节点</h1>
-    <form method="post">
-        <div>
-            <label for="single-line-input">节点缩写：</label>
-            <input type="text" id="summary-input" name="summary-input" value="{{ summary_input_value }}">
-        </div>
-        <div>
-            <label for="prompt-input">Prompt：</label>
-            <textarea id="prompt-input" name="prompt-input" rows="2">{{prompt_input_value}}</textarea>
-        </div>
-        <div>
-            <label>此节点引用的节点：</label>
-            <!-- {% for option in checkbox_options %}
-            <input type="checkbox" name="selected-options" value="{{option}}" {% if option in selected_options %} checked {% endif %}>
-            <label for="{{ option }}">{{ option }}</label>
-            {% endfor %} -->
-            {% for key, value in options_dict.items() %}
-            <input type="checkbox" id="{{ key }}" name="selected-options" value="{{ key }}"
-            {% if key in selected_options %} checked {% endif %}>
-            <label for="{{ key }}">{{ value }}</label>
-            {% endfor %}
-        </div>  
-        <div>
-            <label for="content-textarea">节点内容：</label>
-            <textarea id="content-textarea" name="content-textarea" rows="6" >{{content_input_value}}</textarea>
-        </div>
-        <div>
-            <button type="submit" name="home" value="home">返回</button>
-            <button type="submit" name="submit" value="submit">提交</button>
-            <button type="submit" name="submit_and_run" value="submit_and_run">提交并运行</button>
-        </div>
-        <!-- <div>
-            <button type="submit">提交并运行Prompt</button>
-        </div> -->
-    </form>
+    <div class="container">
+        <h1>编辑节点</h1>
+        <form method="post">
+            <div class="form-group">
+                <label for="summary-input">节点缩写：</label>
+                <input type="text" id="summary-input" name="summary-input" value="{{ summary_input_value }}">
+            </div>
+            <div class="form-group">
+                <label for="prompt-input">Prompt：</label>
+                <textarea id="prompt-input" name="prompt-input" rows="2" oninput="autoResize(this)">{{prompt_input_value}}</textarea>
+            </div>
+            <div class="form-group">
+                <label>此节点引用的节点：</label>
+                <div class="checkbox-group">
+                    {% for key, value in options_dict.items() %}
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="{{ key }}" name="selected-options" value="{{ key }}"
+                        {% if key in selected_options %} checked {% endif %}>
+                        <label for="{{ key }}">{{ value }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>  
+            <div class="form-group">
+                <label for="content-textarea">节点内容：</label>
+                <textarea id="content-textarea" name="content-textarea" rows="6" oninput="autoResize(this)">{{content_input_value}}</textarea>
+            </div>
+            <div class="button-group">
+                <button type="submit" name="home" value="home">返回</button>
+                <button type="submit" name="submit" value="submit">提交</button>
+                <button type="submit" name="submit_and_run" value="submit_and_run">提交并运行</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        // 页面加载完成后，自动调整所有文本框的大小
+        window.onload = function() {
+            var textareas = document.getElementsByTagName('textarea');
+            for (var i = 0; i < textareas.length; i++) {
+                autoResize(textareas[i]);
+            }
+        };
+    </script>
 </body>
 </html>

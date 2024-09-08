@@ -4,9 +4,11 @@ import myapi
 # print openai version
 # print(OpenAI.__version__)
 client = OpenAI(
-    api_key= myapi.myapikey,
-    base_url="https://api.moonshot.cn/v1",
+    api_key= "sk-2UZ21361mpxsPp3VD3F5004c70Fa4f1b8452AbCb276cC07b",
+    base_url="https://ai-yyds.com",
 )
+
+# https://app.nextchat.dev/#/?settings={"key":"sk-2UZ21361mpxsPp3VD3F5004c70Fa4f1b8452AbCb276cC07b","url":"https://ai-yyds.com"}
 
 completion = client.chat.completions.create(
   model="moonshot-v1-8k",
@@ -17,4 +19,5 @@ completion = client.chat.completions.create(
   temperature=0.3,
 )
  
-print(completion.choices[0].message.content)
+# print(completion.choices[0].message.content)
+print(completion)

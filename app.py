@@ -69,11 +69,62 @@ def new_db():
     # 重定向到首页
     return redirect(url_for('index'))
 
-@app.route('/edit', methods=['POST'])
+@app.route('/edit', methods=['GET', 'POST'])
 def submit():
-    selected_option = request.form['option']
-    return redirect(url_for('edit', index=selected_option))
-    return selected_option
+    if request.method == 'POST':
+        selected_option = request.form['option']
+    else:  # GET 请求
+        selected_option = request.args.get('option')
+    
+    if selected_option is not None:
+        return redirect(url_for('edit_node', index=selected_option))
+    else:
+        return redirect(url_for('index'))  # 如果没有选择选项，重定向到首页
+
+@app.route('/edit_node/<index>', methods=['GET', 'POST'])
+def edit_node(index):
+    if request.method == 'POST':
+        if request.form.get('home') == 'home':
+            return redirect(url_for('index'))
+        df = read()
+        summary = request.form['summary-input']
+        reference = request.form.getlist('selected-options')
+        # turn reference to list of int
+        reference = [int(x) for x in reference]
+        if len(reference) == 0:
+            reference = -1
+        prompt = request.form['prompt-input']
+        content = request.form['content-textarea']
+        df.loc[int(index)] = {'summary': summary, 'reference': reference, 'prompt': prompt, 'content': content}
+        write(df)
+        if request.form.get('submit_and_run') == 'submit_and_run':
+            run_index(int(index))
+            return redirect(url_for('edit_node', index=index))
+        return redirect(url_for('index'))
+
+    df = read()
+    try:
+        index = int(index)
+        row = df.iloc[index]
+    except (ValueError, IndexError):
+        # 如果 index 不是有效的整数或者不在 DataFrame 的索引范围内
+        return redirect(url_for('index'))
+
+    summary_input_value = row['summary']
+    options_dict = df['summary'].to_dict()
+    if row['reference'] == -1:
+        selected_options = []
+    else:
+        selected_options = row['reference']
+    prompt_input_value = row['prompt']
+    content_input_value = row['content']
+    return render_template('adjust.html', 
+                           summary_input_value=summary_input_value,
+                           options_dict=options_dict, 
+                           selected_options=selected_options, 
+                           prompt_input_value=prompt_input_value,
+                           content_input_value=content_input_value
+                           )
 
 @app.route('/add',methods=['GET', 'POST'])
 def add():
