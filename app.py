@@ -1,6 +1,7 @@
 from flask import Flask, render_template, url_for, request, redirect
 import pandas as pd
 import os, shutil
+from tools.confident_keys import *
 from tools.myapi import get_kimi_balance
 from tools.db2mermaid import db2mermaid_code
 from tools.read_db import read, write
@@ -29,14 +30,15 @@ app.debug = True
 def index():
     if request.method == 'POST':
         return redirect(url_for('add'))
-    df = read()
-    options_dict = df['summary'].to_dict()
+    data_content, _ = read()
+    options_dict = data_content.set_index('id')['summary'].to_dict()
+    print(options_dict)
     try:
         balance = get_kimi_balance()
     except:
         balance = 'Network Error'
     mermaid_code = db2mermaid_code()
-    print(config_read())
+    # print(config_read())
     return render_template('index.html',
                            mermaid_code=mermaid_code,
                            options = options_dict
@@ -77,47 +79,47 @@ def submit():
         selected_option = request.args.get('option')
     
     if selected_option is not None:
-        return redirect(url_for('edit_node', index=selected_option))
+        return redirect(url_for('edit_node', id=selected_option))
     else:
-        return redirect(url_for('index'))  # 如果没有选择选项，重定向到首页
+        return redirect(url_for('id'))  # 如果没有选择选项，重定向到首页
 
-@app.route('/edit_node/<index>', methods=['GET', 'POST'])
-def edit_node(index):
+@app.route('/edit_node/<id>', methods=['GET', 'POST'])
+def edit_node(id):
     if request.method == 'POST':
         if request.form.get('home') == 'home':
             return redirect(url_for('index'))
-        df = read()
+        data_content, data_structure = read()
         summary = request.form['summary-input']
         reference = request.form.getlist('selected-options')
         # turn reference to list of int
-        reference = [int(x) for x in reference]
-        if len(reference) == 0:
-            reference = -1
+        # reference = [int(x) for x in reference]
         prompt = request.form['prompt-input']
         content = request.form['content-textarea']
-        df.loc[int(index)] = {'summary': summary, 'reference': reference, 'prompt': prompt, 'content': content}
-        write(df)
+        data_content.loc[data_content['id'] == int(id), ['summary', 'prompt', 'content']] = [summary, prompt, content]
+        # data_structure[int(id)]['reference'] = reference
+        for i in reference:
+            data_structure.append({'id': int(id), 'reference': int(i)})
+        write(data_content,data_structure)
         if request.form.get('submit_and_run') == 'submit_and_run':
             run_index(int(index))
             return redirect(url_for('edit_node', index=index))
         return redirect(url_for('index'))
 
-    df = read()
+    data_content,data_structure = read()
     try:
-        index = int(index)
-        row = df.iloc[index]
+        id = int(id)
+        row = data_content[data_content['id'] == id] # 选择 id 为 index 的行
     except (ValueError, IndexError):
         # 如果 index 不是有效的整数或者不在 DataFrame 的索引范围内
         return redirect(url_for('index'))
-
-    summary_input_value = row['summary']
-    options_dict = df['summary'].to_dict()
-    if row['reference'] == -1:
-        selected_options = []
-    else:
-        selected_options = row['reference']
-    prompt_input_value = row['prompt']
-    content_input_value = row['content']
+    print(row)
+    summary_input_value = row['summary'].values[0]
+    options_dict = data_structure[data_structure['id'] == id].set_index('id')['reference'].to_dict()
+    # selected_options = row['reference']
+    options_dict = data_content.set_index('id')['summary'].to_dict()
+    selected_options = data_structure[data_structure['id'] == id]['reference'].to_list()
+    prompt_input_value = row['prompt'].values[0]
+    content_input_value = row['content'].values[0]
     return render_template('adjust.html', 
                            summary_input_value=summary_input_value,
                            options_dict=options_dict, 
@@ -130,19 +132,17 @@ def edit_node(index):
 def add():
     # 设置单行文字输入表单的初始内容
 
-    df = read()
+    data_content, data_structure = read()
     if request.method == 'POST':
         if request.form.get('home') == 'home':
             return redirect(url_for('index'))
         summary = request.form['summary-input']
         reference = request.form.getlist('selected-options')
         # turn reference to list of int
-        reference = [int(x) for x in reference]
-        if len(reference) == 0:
-            reference = [-1]
         prompt = request.form['prompt-input']
         content = request.form['content-textarea']
-        new_row = pd.DataFrame({'summary': summary, 'reference': [reference], 'prompt': prompt, 'content': content})
+        # new_row = pd.DataFrame({'summary': summary, 'reference': [reference], 'prompt': prompt, 'content': content})
+        data_content.loc[data_content['id'] == int(id), ['summary', 'prompt', 'content']] = [summary, prompt, content]
         df = pd.concat([df, new_row], ignore_index=True)
         write(df)
         if request.form.get('submit_and_run') == 'submit_and_run':

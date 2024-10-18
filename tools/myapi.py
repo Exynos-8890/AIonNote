@@ -1,6 +1,9 @@
 from openai import OpenAI
 from zhipuai import ZhipuAI
-from confident_keys import kimikey,zhipukey,gptkey
+try:
+    from confident_keys import *
+except:
+    from tools.confident_keys import *
 import requests
 def get_zhipu_response(prompt_with_content="你好"):
     client = ZhipuAI(api_key=zhipukey) # 填写您自己的APIKey
@@ -58,4 +61,5 @@ def get_kimi_balance():
 
 if __name__ == '__main__':
     print(get_gpt_response())
+    print(get_kimi_balance())
 
